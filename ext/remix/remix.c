@@ -12,7 +12,6 @@ VALUE rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2);
 static VALUE
 j_class_new(VALUE module, VALUE sup)
 {
-
   VALUE klass = create_class(T_ICLASS, rb_cClass);
 
   if (TYPE(module) == T_ICLASS) {
@@ -40,8 +39,6 @@ j_class_new(VALUE module, VALUE sup)
   else {
     RCLASS_M_TBL(klass) = RCLASS_M_TBL(CLASS_OF(module));
   }
-
-  /* */
 
   if (TYPE(module) == T_ICLASS) {
     KLASS_OF(klass) = rb_iv_get(klass, "__module__");
@@ -163,8 +160,6 @@ rb_module_move_down(VALUE self, VALUE mod)
   return self;
 }
 
-
-
 VALUE
 rb_include_at_top(VALUE self, VALUE mod)
 {
@@ -212,20 +207,6 @@ rb_include_at(VALUE self, VALUE mod, VALUE rb_index)
 
 #define SWAP(X, Y)  {(X) ^= (Y); (Y) ^= (X); (X) ^= (Y);}
 
-/* VALUE */
-/* rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2) */
-/* { */
-/*   rb_prepare_for_remix(self); */
-
-/*   if (mod1 == rb_cObject || mod2 == rb_cObject) rb_raise(rb_eRuntimeError, "can't swap Object"); */
-
-/*   SWAP(RCLASS_SUPER(retrieve_before_mod(self, mod1)), RCLASS_SUPER(retrieve_before_mod(self, mod2))); */
-/*   SWAP(RCLASS_SUPER(retrieve_mod(self, mod1)), RCLASS_SUPER(retrieve_mod(self, mod2))); */
-
-/*   rb_clear_cache(); */
-/*   return  self; */
-/* } */
-
 VALUE
 rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
 {
@@ -248,7 +229,6 @@ rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
 
   return  self;
 }
-
 
 VALUE
 rb_remove_module(VALUE self, VALUE mod1)
