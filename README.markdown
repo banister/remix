@@ -15,10 +15,14 @@ install the gem: **for testing purposes only**
 Currently supports:
 
 * include_at(index)
+* include_at_top(Mod)
 * include_before(BeforeMod, Mod)
 * include_after(AfterMod, Mod)
 * swap_modules(Mod1, Mod2)
 * remove_module(Mod)
+* module_move_up(Mod)
+* module_move_down(Mod)
+* replace_module(Mod1, Mod2)
 * ...more to come!
 
 example: 

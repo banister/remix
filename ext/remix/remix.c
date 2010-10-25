@@ -6,6 +6,8 @@
 #include <ruby.h>
 #include "compat.h"
 
+VALUE rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2);
+
 /* a modified version of include_class_new from class.c */
 static VALUE
 j_class_new(VALUE module, VALUE sup)
@@ -59,7 +61,7 @@ j_class_new(VALUE module, VALUE sup)
 static VALUE
 set_supers(VALUE c)
 {
-  if (RCLASS_SUPER(c) == rb_cObject || RCLASS_SUPER(c) == Qnil) {
+  if (RCLASS_SUPER(c) == rb_cObject || RCLASS_SUPER(c) == 0) {
     return RCLASS_SUPER(c);
   }
   else {
@@ -83,6 +85,9 @@ inline static VALUE
 get_source_module(VALUE mod)
 {
   switch (TYPE(mod)) {
+  case T_FALSE:
+    return Qfalse;
+    break;
   case T_ICLASS:
     if (RTEST(rb_iv_get(mod, "__module__")))
       return rb_iv_get(mod, "__module__");
@@ -105,11 +110,11 @@ static VALUE
 retrieve_before_mod(VALUE m, VALUE before)
 {
   VALUE k = get_source_module(RCLASS_SUPER(m));
-  while(k != before && m != Qnil && m != rb_cObject) {
+  while(k != before && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
     k = get_source_module(RCLASS_SUPER(m));
   }
-  if (get_source_module(RCLASS_SUPER(m)) != before)
+  if (k != before)
     rb_raise(rb_eRuntimeError, "'before' module not found");
 
   return m;
@@ -119,7 +124,7 @@ static VALUE
 retrieve_mod(VALUE m, VALUE after)
 {
   VALUE k = get_source_module(m);
-  while(k != after && m != Qnil && m != rb_cObject) {
+  while(k != after && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
     k = get_source_module(m);
   }
@@ -128,6 +133,49 @@ retrieve_mod(VALUE m, VALUE after)
     rb_raise(rb_eRuntimeError, "'after' module not found");
 
   return m;
+}
+
+VALUE
+rb_module_move_up(VALUE self, VALUE mod)
+{
+  rb_prepare_for_remix(self);
+
+  VALUE included_mod = retrieve_mod(self, mod);
+  if (RCLASS_SUPER(included_mod) == rb_cObject || RCLASS_SUPER(included_mod) == 0)
+    return self;
+  
+  rb_swap_modules(self, mod, get_source_module(RCLASS_SUPER(included_mod)));
+
+  return self;
+}
+
+VALUE
+rb_module_move_down(VALUE self, VALUE mod)
+{
+  rb_prepare_for_remix(self);
+
+  VALUE before_included_mod = retrieve_before_mod(self, mod);
+  if (before_included_mod == self)
+    return self;
+   
+  rb_swap_modules(self, mod, get_source_module(before_included_mod));
+
+  return self;
+}
+
+
+
+VALUE
+rb_include_at_top(VALUE self, VALUE mod)
+{
+  rb_prepare_for_remix(self);
+
+  if (TYPE(self) == T_MODULE)
+    rb_include_module(retrieve_before_mod(self, Qfalse), mod);
+  else
+    rb_include_module(retrieve_before_mod(self, rb_cObject), mod);
+
+  return self;
 }
 
 VALUE
@@ -155,7 +203,7 @@ rb_include_at(VALUE self, VALUE mod, VALUE rb_index)
   VALUE m = self;
 
   int i = 0;
-  while(i++ < index && RCLASS_SUPER(m) != Qnil && RCLASS_SUPER(m) != rb_cObject)
+  while(i++ < index && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject)
     m = RCLASS_SUPER(m);
 
   rb_include_module(m, mod);
@@ -163,6 +211,20 @@ rb_include_at(VALUE self, VALUE mod, VALUE rb_index)
 }
 
 #define SWAP(X, Y)  {(X) ^= (Y); (Y) ^= (X); (X) ^= (Y);}
+
+/* VALUE */
+/* rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2) */
+/* { */
+/*   rb_prepare_for_remix(self); */
+
+/*   if (mod1 == rb_cObject || mod2 == rb_cObject) rb_raise(rb_eRuntimeError, "can't swap Object"); */
+
+/*   SWAP(RCLASS_SUPER(retrieve_before_mod(self, mod1)), RCLASS_SUPER(retrieve_before_mod(self, mod2))); */
+/*   SWAP(RCLASS_SUPER(retrieve_mod(self, mod1)), RCLASS_SUPER(retrieve_mod(self, mod2))); */
+
+/*   rb_clear_cache(); */
+/*   return  self; */
+/* } */
 
 VALUE
 rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
@@ -187,6 +249,7 @@ rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
   return  self;
 }
 
+
 VALUE
 rb_remove_module(VALUE self, VALUE mod1)
 {
@@ -202,14 +265,34 @@ rb_remove_module(VALUE self, VALUE mod1)
   return self;
 }
 
+VALUE
+rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
+{
+  rb_prepare_for_remix(self);
+
+  if (rb_mod_include_p(self, mod2))
+    return rb_swap_modules(self, mod1, mod2);
+  
+  VALUE before = retrieve_before_mod(self, mod1);
+  rb_remove_module(self, mod1);
+  rb_include_module(before, mod2);
+  return self;
+}
+
 void
 Init_remix()
 {
   rb_define_method(rb_cObject, "ready_remix", rb_prepare_for_remix, 0);
+  rb_define_method(rb_cModule, "module_move_up", rb_module_move_up, 1);
+  rb_define_method(rb_cModule, "module_move_down", rb_module_move_down, 1);
+
   rb_define_method(rb_cModule, "include_at", rb_include_at, 2);
   rb_define_method(rb_cModule, "include_before", rb_include_before, 2);
   rb_define_method(rb_cModule, "include_after", rb_include_after, 2);
+  rb_define_method(rb_cModule, "include_at_top", rb_include_at_top, 1);
+
   rb_define_method(rb_cModule, "swap_modules", rb_swap_modules, 2);
   rb_define_method(rb_cModule, "remove_module", rb_remove_module, 1);
+  rb_define_method(rb_cModule, "replace_module", rb_replace_module, 2);
 }
 
