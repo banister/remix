@@ -1,6 +1,8 @@
 Remix
 --------------
 
+For Rue (1977-)
+
 (c) John Mair (banisterfiend) 
 MIT license
 

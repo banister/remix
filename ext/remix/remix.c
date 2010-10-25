@@ -137,6 +137,9 @@ rb_module_move_up(VALUE self, VALUE mod)
 {
   rb_prepare_for_remix(self);
 
+  if (self == mod)
+    return self;
+
   VALUE included_mod = retrieve_mod(self, mod);
   if (RCLASS_SUPER(included_mod) == rb_cObject || RCLASS_SUPER(included_mod) == 0)
     return self;
@@ -150,6 +153,9 @@ VALUE
 rb_module_move_down(VALUE self, VALUE mod)
 {
   rb_prepare_for_remix(self);
+
+  if (self == mod)
+    return self;
 
   VALUE before_included_mod = retrieve_before_mod(self, mod);
   if (before_included_mod == self)
