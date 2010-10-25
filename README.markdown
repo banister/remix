@@ -4,10 +4,13 @@ Remix
 (c) John Mair (banisterfiend) 
 MIT license
 
-Makes inheritance chains read/write
+Ruby modules re-mixed and remastered
 
 ** This is BETA software and has not yet been thoroughly tested, use
    at own risk **
+   
+install the gem: **for testing purposes only**
+`gem install remix`
 
 Currently supports:
 
@@ -29,12 +32,19 @@ example:
     end
 
     B.ancestors #=> [B, A, M, ...]
+
     B.swap_modules A, M
+
     B.ancestors #=> [B, M, A, ...]
+
     module J end
+
     B.include_before A, J
+
     B.ancestors #=> [B, M, J, A, ...]
+
     B.remove_module M
+
     B.ancestors #=> [B, J, A, ...]
     
     
