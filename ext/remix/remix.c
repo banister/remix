@@ -1,5 +1,5 @@
-/* object2module.c */
-/* (C) John Mair 2009
+/* remix.c */
+/* (C) John Mair 2010
  * This program is distributed under the terms of the MIT License
  *                                                                */
 
@@ -134,20 +134,7 @@ VALUE
 rb_include_after(VALUE self, VALUE after, VALUE mod)
 {
   rb_prepare_for_remix(self);
-
-  VALUE k, m = self;
-
-  k = get_source_module(m);
-  while(k != after && m != Qnil && m != rb_cObject) {
-    m = RCLASS_SUPER(m);
-    k = get_source_module(m);
-  }
-
-  if (k != after)
-    rb_raise(rb_eRuntimeError, "'after' module not found");
-
-  rb_include_module(m, mod);
-
+  rb_include_module(retrieve_mod(self, after), mod);
   return self;
 }
 
@@ -155,20 +142,7 @@ VALUE
 rb_include_before(VALUE self, VALUE before, VALUE mod)
 {
   rb_prepare_for_remix(self);
-
-  VALUE k, m = self;
-
-  k = get_source_module(RCLASS_SUPER(m));
-  while(k != before && m != Qnil && m != rb_cObject) {
-    m = RCLASS_SUPER(m);
-    k = get_source_module(RCLASS_SUPER(m));
-  }
-
-  if (get_source_module(RCLASS_SUPER(m)) != before)
-    rb_raise(rb_eRuntimeError, "'before' module not found");
-
-  rb_include_module(m, mod);
-
+  rb_include_module(retrieve_before_mod(self, before), mod);
   return self;
 }
 
