@@ -25,10 +25,9 @@ specification = Gem::Specification.new do |s|
   s.has_rdoc = 'yard'
 
   #s.extensions = ["ext/remix/extconf.rb"]
-  s.files =  ["Rakefile", "README.markdown", "CHANGELOG", 
-              "lib/remix.rb", "lib/remix/version.rb"] +
+  s.files =  ["Rakefile", "README.markdown", "CHANGELOG"] +
     ["lib/1.9/remix.so", "lib/1.8/remix.so"] +
-  FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c"].to_a 
+    FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "CHANGELOG", "README.markdown", "Rakefile"].to_a
 end
 
 Rake::GemPackageTask.new(specification) do |package|

@@ -11,6 +11,7 @@ describe 'Test basic remix functionality' do
     A = Module.new
     B = Module.new
     C = Module.new
+    J = Module.new
     
     M = Module.new
 
@@ -74,6 +75,14 @@ describe 'Test basic remix functionality' do
       M.ancestors[1..2].should == [A, B]
       M.remove_module A
       M.ancestors[1..2].should == [B]
+    end
+
+    it 'should remove recursively if second parameter is true' do
+      klass = Module.new
+      klass.include J, M, C
+      klass.ancestors[1..-1].should == [J, M, A, B, C]
+      klass.remove_module M, true
+      klass.ancestors[1..-1].should == [J, C]
     end
   end
 

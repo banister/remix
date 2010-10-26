@@ -106,6 +106,9 @@ get_source_module(VALUE mod)
 static VALUE
 retrieve_before_mod(VALUE m, VALUE before)
 {
+  if (!RTEST(rb_obj_is_kind_of(before, rb_cModule)))
+    rb_raise(rb_eTypeError, "Must be a Module or Class type.");
+
   VALUE k = get_source_module(RCLASS_SUPER(m));
   while(k != before && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
@@ -120,6 +123,9 @@ retrieve_before_mod(VALUE m, VALUE before)
 static VALUE
 retrieve_mod(VALUE m, VALUE after)
 {
+  if (!RTEST(rb_obj_is_kind_of(after, rb_cModule)))
+    rb_raise(rb_eTypeError, "Must be a Module or Class type.");
+
   VALUE k = get_source_module(m);
   while(k != after && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
@@ -191,6 +197,10 @@ VALUE
 rb_include_before(VALUE self, VALUE before, VALUE mod)
 {
   rb_prepare_for_remix(self);
+
+  if (before == self)
+    rb_raise(rb_eRuntimeError, "Prepend not supported yet!");
+  
   rb_include_module(retrieve_before_mod(self, before), mod);
   return self;
 }
@@ -238,16 +248,40 @@ rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
   return  self;
 }
 
+static void
+remove_nested_module(VALUE included_mod, VALUE module)
+{
+  VALUE source_mod = get_source_module(RCLASS_SUPER(included_mod));
+  
+  if (source_mod == rb_cObject || source_mod == Qfalse)
+    return;
+  else if (source_mod == get_source_module(RCLASS_SUPER(module))) {
+    remove_nested_module(RCLASS_SUPER(included_mod), RCLASS_SUPER(module));
+    RCLASS_SUPER(included_mod) = RCLASS_SUPER(RCLASS_SUPER(included_mod));
+  }
+}
+      
 VALUE
-rb_remove_module(VALUE self, VALUE mod1)
+rb_remove_module(int argc, VALUE * argv, VALUE self)
 {
   rb_prepare_for_remix(self);
+
+  VALUE mod1, recurse = Qfalse;
+  rb_scan_args(argc, argv, "11", &mod1, &recurse);
+
+  if (!RTEST(rb_mod_include_p(self, mod1)))
+    rb_raise(rb_eArgError, "Module not found");
 
   VALUE before = retrieve_before_mod(self, mod1);
   VALUE included_mod = retrieve_mod(self, mod1);
   
   if (mod1 == rb_cObject) rb_raise(rb_eRuntimeError, "can't delete Object");
+
+  if (RTEST(recurse))
+    remove_nested_module(included_mod, mod1);
+
   RCLASS_SUPER(before) = RCLASS_SUPER(included_mod);
+
   rb_clear_cache();
 
   return self;
@@ -262,7 +296,7 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
     return rb_swap_modules(self, mod1, mod2);
   
   VALUE before = retrieve_before_mod(self, mod1);
-  rb_remove_module(self, mod1);
+  rb_remove_module(1, &mod1, self);
   rb_include_module(before, mod2);
   return self;
 }
@@ -276,11 +310,14 @@ Init_remix()
 
   rb_define_method(rb_cModule, "include_at", rb_include_at, 2);
   rb_define_method(rb_cModule, "include_before", rb_include_before, 2);
+  rb_define_alias(rb_cModule, "include_below", "include_before");
   rb_define_method(rb_cModule, "include_after", rb_include_after, 2);
+  rb_define_alias(rb_cModule, "include_above", "include_after");
   rb_define_method(rb_cModule, "include_at_top", rb_include_at_top, 1);
 
   rb_define_method(rb_cModule, "swap_modules", rb_swap_modules, 2);
-  rb_define_method(rb_cModule, "remove_module", rb_remove_module, 1);
+  rb_define_method(rb_cModule, "remove_module", rb_remove_module, -1);
+  rb_define_alias(rb_cModule, "uninclude", "remove_module");
   rb_define_method(rb_cModule, "replace_module", rb_replace_module, 2);
 }
 
