@@ -19,12 +19,13 @@ end
 require "#{direc}/remix/c_docs"
 
 module Kernel
+  # :nodoc:
   def singleton_class
     class << self; self; end
   end if !respond_to?(:singleton_class)
 end
 
-class Object
+module Remix::ObjectExtensions
 
   # Like `include_at()` but for the singleton class
   # @see Module#include_at
@@ -32,7 +33,7 @@ class Object
     singleton_class.include_at(index, mod)
   end
 
-  # Like `include_before()` but for the singleton class
+  # Like `include_below()` but for the singleton class
   # @see Module#include_below
   def extend_below(mod)
     singleton_class.include_below(mod)
@@ -85,4 +86,6 @@ class Object
 end
 
   
-  
+class Object
+  include Remix::ObjectExtensions
+end
