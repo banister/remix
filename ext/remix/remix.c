@@ -262,7 +262,7 @@ remove_nested_module(VALUE included_mod, VALUE module)
 }
       
 VALUE
-rb_remove_module(int argc, VALUE * argv, VALUE self)
+rb_uninclude(int argc, VALUE * argv, VALUE self)
 {
   rb_prepare_for_remix(self);
 
@@ -296,7 +296,7 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
     return rb_swap_modules(self, mod1, mod2);
   
   VALUE before = retrieve_before_mod(self, mod1);
-  rb_remove_module(1, &mod1, self);
+  rb_uninclude(1, &mod1, self);
   rb_include_module(before, mod2);
   return self;
 }
@@ -304,20 +304,20 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
 void
 Init_remix()
 {
-  rb_define_method(rb_cObject, "ready_remix", rb_prepare_for_remix, 0);
+  rb_define_method(rb_cModule, "ready_remix", rb_prepare_for_remix, 0);
   rb_define_method(rb_cModule, "module_move_up", rb_module_move_up, 1);
   rb_define_method(rb_cModule, "module_move_down", rb_module_move_down, 1);
 
   rb_define_method(rb_cModule, "include_at", rb_include_at, 2);
-  rb_define_method(rb_cModule, "include_before", rb_include_before, 2);
-  rb_define_alias(rb_cModule, "include_below", "include_before");
-  rb_define_method(rb_cModule, "include_after", rb_include_after, 2);
-  rb_define_alias(rb_cModule, "include_above", "include_after");
+  rb_define_method(rb_cModule, "include_below", rb_include_before, 2);
+  rb_define_alias(rb_cModule, "include_before", "include_below");
+  rb_define_method(rb_cModule, "include_above", rb_include_after, 2);
+  rb_define_alias(rb_cModule, "include_after", "include_above");
   rb_define_method(rb_cModule, "include_at_top", rb_include_at_top, 1);
 
   rb_define_method(rb_cModule, "swap_modules", rb_swap_modules, 2);
-  rb_define_method(rb_cModule, "remove_module", rb_remove_module, -1);
-  rb_define_alias(rb_cModule, "uninclude", "remove_module");
+  rb_define_method(rb_cModule, "uninclude", rb_uninclude, -1);
+  rb_define_alias(rb_cModule, "remove_module", "uninclude");
   rb_define_method(rb_cModule, "replace_module", rb_replace_module, 2);
 }
 
