@@ -196,14 +196,16 @@ rb_include_before(VALUE self, VALUE before, VALUE mod)
 }
 
 VALUE
-rb_include_at(VALUE self, VALUE mod, VALUE rb_index)
+rb_include_at(VALUE self, VALUE rb_index, VALUE mod)
 {
   rb_prepare_for_remix(self);
+  
+  Check_Type(rb_index, T_FIXNUM);
 
   int index = FIX2INT(rb_index);
   VALUE m = self;
 
-  int i = 0;
+  int i = 1;
   while(i++ < index && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject)
     m = RCLASS_SUPER(m);
 
