@@ -107,10 +107,10 @@ Full list of functions
 * extend_before(before_mod, mod)
 * extend_after(after_mod, mod)
 * swap_extended_modules(mod1, mod2)
-* replace_module(mod1, mod2)
 * unextend(mod, recurse=false)
 * extended_module_move_up(mod)
 * extended_module_move_down(mod)
+* replace_extended_module(mod1, mod2)
 
 Limitations
 ------------
