@@ -122,7 +122,7 @@ soon.
 Special Thanks
 ---------------
 
-Asher
+[Asher](http://github.com/asher-)
 
 Contact
 -------
