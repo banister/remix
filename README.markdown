@@ -12,11 +12,11 @@ Using Remix you can add a module at any point in the chain,
 remove modules, replace modules, move modules around and otherwise
 'remix' your modules.
 
-* Install the gem [gem](https://rubygems.org/gems/remix) `gem install remix`
+* Install the [gem](https://rubygems.org/gems/remix)`gem install remix`
 * Read the [documentation](http://rdoc.info/github/banister/remix/master/file/README.markdown)
 * See the [source code](http://github.com/banister/remix)
 
-example - include_at_top():
+example: include_at_top():
 --------------------------
 
 Using `include_at_top` we can include a module at the top of a chain
@@ -36,7 +36,7 @@ rather than at the bottom (the default).
     # Modified ancestor chain
     M.ancestors #=> [M, A, B, C, J]
     
-example - unextend()
+example: unextend()
 --------------------
 
 Like the Mixico library Remix allows you to unextend
@@ -125,8 +125,19 @@ Full list of functions
 * extended_module_move_up(mod)
 * extended_module_move_down(mod)
 
+Limitations
+------------
+
+Remix does not currently reorder the singleton classes of superclasses
+to reflect the new position of the class. This functionality is coming
+soon.
 
 Contact
 -------
 
 Problems or questions contact me at [github](http://github.com/banister)
+
+Dedication
+----------
+
+For Rue (1977-)
