@@ -24,7 +24,6 @@ rather than at the bottom (the default).
 
     M.ancestors #=> [M, A, B, C]
     
-    # Now let's insert a module at the top of the chain
     M.include_at_top J
     
     # Modified ancestor chain
@@ -39,14 +38,14 @@ functionality by (optionally) removing nested modules too:
 
     C.ancestors #=> [C, A, B]
     
-    D = Object.new
-    D.extend C
-    D.singleton_class.ancestors #=> [C, A, B, Object, ...]
+    o = Object.new
+    o.extend C
+    o.singleton_class.ancestors #=> [C, A, B, Object, ...]
     
     # remove entire nested module C by passing true as second parameter
-    D.unextend C, true
+    o.unextend C, true
     
-    D.singleton_class.ancestors #=> [Object, ...]
+    o.singleton_class.ancestors #=> [Object, ...]
     
 Special features
 ------------------
