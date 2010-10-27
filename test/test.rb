@@ -19,6 +19,14 @@ describe 'Test basic remix functionality' do
     M.extend A, B
   end
 
+  after do
+    Object.remove_const(:A)
+    Object.remove_const(:B)
+    Object.remove_const(:C)
+    Object.remove_const(:M)
+    Object.remove_const(:J)
+  end
+
   describe 'extend-based methods' do
     describe 'extend_after' do
       it 'should insert module into correct position in singleton class' do
@@ -125,11 +133,5 @@ describe 'Test basic remix functionality' do
       end
     end
     
-    after do
-      Object.remove_const(:A)
-      Object.remove_const(:B)
-      Object.remove_const(:C)
-      Object.remove_const(:M)
-    end
   end
 end

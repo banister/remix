@@ -1,16 +1,28 @@
 Remix
---------------
+=======
 
-For Rue (1977-)
+"Ruby modules remixed and remastered"
 
-(c) John Mair (banisterfiend) 
-MIT license
+Remix is a Ruby library that gives you complete control over class and module ancestor
+chains. Using Remix you can add a module at any point in the chain,
+remove modules, replace modules with other ones, and move modules around
+within the chain.
 
-Ruby modules re-mixed and remastered
-
-** This is BETA software and has not yet been thoroughly tested, use
-   at own risk **
-   
+example:
+    # ... modules A, B, C, and J defined here
+    
+    module M
+      include A, B, C
+    end
+    
+    M.ancestors #=> [M, A, B, C]
+    
+    # Now let's insert a module between A and B
+    M.include_above A, J
+    
+    # Modified ancestor chain
+    M.ancestors #=> [M, A, J, B, C]
+    
 install the gem: **for testing purposes only**
 `gem install remix`
 
@@ -27,30 +39,3 @@ Currently supports:
 * replace_module(Mod1, Mod2)
 * ...more to come!
 
-example: 
-
-    module M end
-
-    class A; end
-
-    class B < A
-      include_after(A, M)
-    end
-
-    B.ancestors #=> [B, A, M, ...]
-
-    B.swap_modules A, M
-
-    B.ancestors #=> [B, M, A, ...]
-
-    module J end
-
-    B.include_before A, J
-
-    B.ancestors #=> [B, M, J, A, ...]
-
-    B.remove_module M
-
-    B.ancestors #=> [B, J, A, ...]
-    
-    
