@@ -19,15 +19,16 @@ specification = Gem::Specification.new do |s|
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  #s.platform = Gem::Platform::RUBY
-  s.platform = 'i386-mswin32'
+  s.platform = Gem::Platform::RUBY
+  #s.platform = 'i386-mswin32'
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
 
-  #s.extensions = ["ext/remix/extconf.rb"]
-  s.files =  ["Rakefile", "README.markdown", "CHANGELOG"] +
-    ["lib/1.9/remix.so", "lib/1.8/remix.so"] +
-    FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "CHANGELOG", "README.markdown", "Rakefile"].to_a
+  s.extensions = ["ext/remix/extconf.rb"]
+  s.files =  
+  #  ["lib/1.9/remix.so", "lib/1.8/remix.so"] +
+    FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "test/*.rb",
+             "CHANGELOG", "README.markdown", "Rakefile"].to_a
 end
 
 Rake::GemPackageTask.new(specification) do |package|
