@@ -2,6 +2,7 @@ direc = File.dirname(__FILE__)
 
 require 'rbconfig'
 require "#{direc}/remix/version"
+require "#{direc}/remix/c_docs"
 
 dlext = Config::CONFIG['DLEXT']
 
@@ -14,9 +15,6 @@ begin
 rescue LoadError => e
     require "#{direc}/remix.#{dlext}"
 end
-
-# bring in documentation of C methods
-require "#{direc}/remix/c_docs"
 
 module Kernel
   # :nodoc:
@@ -35,15 +33,15 @@ module Remix::ObjectExtensions
 
   # Like `include_below()` but for the singleton class
   # @see Module#include_below
-  def extend_below(mod)
-    singleton_class.include_below(mod)
+  def extend_below(mod1, mod2)
+    singleton_class.include_below(mod1, mod2)
   end
   alias_method :extend_before, :extend_below
 
   # Like `include_above()` but for the singleton class
   # @see Module#include_above
-  def extend_above(mod)
-    singleton_class.include_above(mod)
+  def extend_above(mod1, mod2)
+    singleton_class.include_above(mod1, mod2)
   end
   alias_method :extend_after, :extend_above
 

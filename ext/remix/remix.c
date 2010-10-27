@@ -106,7 +106,7 @@ get_source_module(VALUE mod)
 static VALUE
 retrieve_before_mod(VALUE m, VALUE before)
 {
-  if (!RTEST(rb_obj_is_kind_of(before, rb_cModule)))
+  if (!RTEST(rb_obj_is_kind_of(before, rb_cModule)) && TYPE(before) != T_FALSE)
     rb_raise(rb_eTypeError, "Must be a Module or Class type.");
 
   VALUE k = get_source_module(RCLASS_SUPER(m));
@@ -123,7 +123,7 @@ retrieve_before_mod(VALUE m, VALUE before)
 static VALUE
 retrieve_mod(VALUE m, VALUE after)
 {
-  if (!RTEST(rb_obj_is_kind_of(after, rb_cModule)))
+  if (!RTEST(rb_obj_is_kind_of(after, rb_cModule)) && TYPE(after) != T_FALSE)
     rb_raise(rb_eTypeError, "Must be a Module or Class type.");
 
   VALUE k = get_source_module(m);
@@ -305,23 +305,24 @@ void
 Init_remix()
 {
   VALUE mRemix = rb_define_module("Remix");
+  VALUE mModuleExtensions = rb_define_module_under(mRemix, "ModuleExtensions");
   
-  rb_define_method(mRemix, "ready_remix", rb_prepare_for_remix, 0);
-  rb_define_method(mRemix, "module_move_up", rb_module_move_up, 1);
-  rb_define_method(mRemix, "module_move_down", rb_module_move_down, 1);
+  rb_define_method(mModuleExtensions, "ready_remix", rb_prepare_for_remix, 0);
+  rb_define_method(mModuleExtensions, "module_move_up", rb_module_move_up, 1);
+  rb_define_method(mModuleExtensions, "module_move_down", rb_module_move_down, 1);
 
-  rb_define_method(mRemix, "include_at", rb_include_at, 2);
-  rb_define_method(mRemix, "include_below", rb_include_before, 2);
-  rb_define_alias(mRemix, "include_before", "include_below");
-  rb_define_method(mRemix, "include_above", rb_include_after, 2);
-  rb_define_alias(mRemix, "include_after", "include_above");
-  rb_define_method(mRemix, "include_at_top", rb_include_at_top, 1);
+  rb_define_method(mModuleExtensions, "include_at", rb_include_at, 2);
+  rb_define_method(mModuleExtensions, "include_below", rb_include_before, 2);
+  rb_define_alias(mModuleExtensions, "include_before", "include_below");
+  rb_define_method(mModuleExtensions, "include_above", rb_include_after, 2);
+  rb_define_alias(mModuleExtensions, "include_after", "include_above");
+  rb_define_method(mModuleExtensions, "include_at_top", rb_include_at_top, 1);
 
-  rb_define_method(mRemix, "swap_modules", rb_swap_modules, 2);
-  rb_define_method(mRemix, "uninclude", rb_uninclude, -1);
-  rb_define_alias(mRemix, "remove_module", "uninclude");
-  rb_define_method(mRemix, "replace_module", rb_replace_module, 2);
+  rb_define_method(mModuleExtensions, "swap_modules", rb_swap_modules, 2);
+  rb_define_method(mModuleExtensions, "uninclude", rb_uninclude, -1);
+  rb_define_alias(mModuleExtensions, "remove_module", "uninclude");
+  rb_define_method(mModuleExtensions, "replace_module", rb_replace_module, 2);
 
-  rb_include_module(rb_cObject, mRemix);
+  rb_include_module(rb_cModule, mModuleExtensions);
 }
 
