@@ -119,6 +119,11 @@ Remix does not currently reorder the singleton classes of superclasses
 to reflect the new position of the class. This functionality is coming
 soon.
 
+Special Thanks
+---------------
+
+Asher
+
 Contact
 -------
 
@@ -128,3 +133,5 @@ Dedication
 ----------
 
 For Rue (1977-)
+
+
