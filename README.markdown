@@ -1,7 +1,7 @@
 Remix
 =======
 
-"Ruby modules remixed and remastered"
+_Ruby modules remixed and remastered_
 
 Remix is a Ruby library that gives you complete control over class and module ancestor
 chains. Using Remix you can add a module at any point in the chain,
