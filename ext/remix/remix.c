@@ -322,7 +322,5 @@ Init_remix()
   rb_define_method(mModuleExtensions, "uninclude", rb_uninclude, -1);
   rb_define_alias(mModuleExtensions, "remove_module", "uninclude");
   rb_define_method(mModuleExtensions, "replace_module", rb_replace_module, 2);
-
-  rb_include_module(rb_cModule, mModuleExtensions);
 }
 

@@ -87,7 +87,12 @@ module Remix::ObjectExtensions
   end
 end
 
-  
+# bring extend-based methods into Object  
 class Object
   include Remix::ObjectExtensions
+end
+
+# bring include-based methods into Module
+class Module
+  include Remix::ModuleExtensions
 end
