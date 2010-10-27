@@ -22,8 +22,6 @@ example: include_at_top():
 Using `include_at_top` we can include a module at the top of a chain
 rather than at the bottom (the default).
 
-    # ... modules M, A, B, C, and J defined above...
-    
     M.ancestors #=> [M, A, B, C]
     
     # Now let's insert a module at the top of the chain
@@ -39,8 +37,6 @@ Like the Mixico library Remix allows you to unextend
 (or uninclude) modules from inheritance chains; but also extends this
 functionality by (optionally) removing nested modules too:
 
-    # ...modules A, B, C defined above...
-        
     C.ancestors #=> [C, A, B]
     
     D = Object.new
@@ -95,7 +91,7 @@ Full list of functions
 
 **include-based functions:**
 
-* include_at(index)
+* include_at(index, mod)
 * include_at_top(mod)
 * include_before(before_mod, mod)
 * include_after(after_mod, mod)
@@ -107,7 +103,7 @@ Full list of functions
 
 **extend-based functions:**
 
-* extend_at(index)
+* extend_at(index, mod)
 * extend_at_top(mod)
 * extend_before(before_mod, mod)
 * extend_after(after_mod, mod)
