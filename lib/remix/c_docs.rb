@@ -49,7 +49,7 @@ module Remix
     
     # Moves a module up one position in the ancestor chain.
     # Module must already be in ancestor chain.
-    # @param [Module] Module to move up
+    # @param [Module] mod The module to move up
     # @return [Module] The receiver
     # @example
     #   M.ancestors #=> [M, A, B]
@@ -59,7 +59,7 @@ module Remix
 
     # Moves a module down one position in the ancestor chain.
     # Module must already be in ancestor chain.
-    # @param [Module] Module to move down
+    # @param [Module] mod The module to move down
     # @return [Module] The receiver
     # @example
     #   M.ancestors #=> [M, A, B]
@@ -72,7 +72,7 @@ module Remix
     # @param [Module] mod The module to uninclude
     # @param [Boolean] recurse Set to true to remove nested modules
     # @return [Module] The receiver
-    # @example
+    # @example Without recursion
     #   module C
     #     include A, B
     #   end
