@@ -17,6 +17,10 @@ describe 'Test basic remix functionality' do
 
     M.include A, B
     M.extend A, B
+
+    C1 = Class.new
+    C2 = Class.new(C1)
+    C2.include A
   end
 
   after do
@@ -25,6 +29,8 @@ describe 'Test basic remix functionality' do
     Object.remove_const(:C)
     Object.remove_const(:M)
     Object.remove_const(:J)
+    Object.remove_const(:C1)
+    Object.remove_const(:C2)
   end
 
   describe 'extend-based methods' do
@@ -52,7 +58,23 @@ describe 'Test basic remix functionality' do
         M.singleton_class.ancestors[0..3].should == [J, C, A, B]
         M.unextend C, true
         M.singleton_class.ancestors[0..1].should == [J, Module]
-      end      
+      end
+
+      it 'should unextend the class of the object' do
+        o = C2.new
+        o.singleton_class.ancestors.first.should == C2
+        o.unextend(C2)
+        o.singleton_class.ancestors.first.should == A
+      end
+    end
+    
+    describe 'replace_extended_module' do
+      it 'should replace the class of the object with a module' do
+        o = C2.new
+        o.singleton_class.ancestors.first.should == C2
+        o.replace_extended_module C2, J
+        o.singleton_class.ancestors.first.should == J
+      end
     end
   end
   
@@ -130,6 +152,12 @@ describe 'Test basic remix functionality' do
         M.ancestors[1..2].should == [A, B]
         M.replace_module B, C
         M.ancestors[1..2].should == [A, C]
+      end
+
+      it 'should replace a class with a module' do
+        C2.ancestors[0..2].should == [C2, A, C1]
+        C2.replace_module C1, B
+        C2.ancestors[0..2].should == [C2, A, B]
       end
     end
     

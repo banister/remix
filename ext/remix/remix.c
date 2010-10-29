@@ -8,6 +8,12 @@
 
 VALUE rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2);
 
+#define Enforce_Classmod(klass) \
+  do { \
+  if (!RTEST(rb_obj_is_kind_of(klass, rb_cModule)))  \
+    rb_raise(rb_eTypeError, "Must be a Module or Class type."); \
+  } while(0)
+
 /* a modified version of include_class_new from class.c */
 static VALUE
 j_class_new(VALUE module, VALUE sup)
@@ -15,7 +21,7 @@ j_class_new(VALUE module, VALUE sup)
   VALUE klass = create_class(T_ICLASS, rb_cClass);
 
   if (TYPE(module) == T_ICLASS) {
-    klass = module;
+    //    klass = module;
   }
 
   if (!RCLASS_IV_TBL(module)) {
@@ -69,10 +75,15 @@ set_supers(VALUE c)
 VALUE
 rb_prepare_for_remix(VALUE klass)
 {
-  if (!RTEST(rb_obj_is_kind_of(klass, rb_cModule)))
-    rb_raise(rb_eTypeError, "Must be a Module or Class type.");
+  Enforce_Classmod(klass);
 
+  /* class chain is already prepared for remixing */
+  if (RTEST(rb_iv_get(klass, "__remix_ready__")))
+    return klass;
+  
   RCLASS_SUPER(klass) = set_supers(klass);
+
+  rb_iv_set(klass, "__remix_ready__", Qtrue);
 
   rb_clear_cache();
   return klass;
@@ -260,6 +271,26 @@ remove_nested_module(VALUE included_mod, VALUE module)
     RCLASS_SUPER(included_mod) = RCLASS_SUPER(RCLASS_SUPER(included_mod));
   }
 }
+
+static VALUE
+rb_classmod_include_p(VALUE mod, VALUE mod2)
+{
+  VALUE p;
+
+  Enforce_Classmod(mod2);
+  
+  for (p = RCLASS_SUPER(mod); p; p = RCLASS_SUPER(p)) {
+    if (BUILTIN_TYPE(p) == T_ICLASS) {
+      if (RTEST(rb_iv_get(module, "__module__"))) {
+        if (rb_iv_get(p, "__module__") == mod2) return Qtrue;
+      }
+      
+      if (RBASIC(p)->klass == mod2) return Qtrue;
+    }
+  }
+  return Qfalse;
+}
+
       
 VALUE
 rb_uninclude(int argc, VALUE * argv, VALUE self)
@@ -269,7 +300,7 @@ rb_uninclude(int argc, VALUE * argv, VALUE self)
   VALUE mod1, recurse = Qfalse;
   rb_scan_args(argc, argv, "11", &mod1, &recurse);
 
-  if (!RTEST(rb_mod_include_p(self, mod1)))
+  if (!RTEST(rb_classmod_include_p(self, mod1)))
     rb_raise(rb_eArgError, "Module not found");
 
   VALUE before = retrieve_before_mod(self, mod1);
@@ -292,7 +323,7 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
 {
   rb_prepare_for_remix(self);
 
-  if (rb_mod_include_p(self, mod2))
+  if (rb_classmod_include_p(self, mod2))
     return rb_swap_modules(self, mod1, mod2);
   
   VALUE before = retrieve_before_mod(self, mod1);
