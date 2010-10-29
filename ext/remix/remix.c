@@ -281,7 +281,7 @@ rb_classmod_include_p(VALUE mod, VALUE mod2)
   
   for (p = RCLASS_SUPER(mod); p; p = RCLASS_SUPER(p)) {
     if (BUILTIN_TYPE(p) == T_ICLASS) {
-      if (RTEST(rb_iv_get(module, "__module__"))) {
+      if (RTEST(rb_iv_get(p, "__module__"))) {
         if (rb_iv_get(p, "__module__") == mod2) return Qtrue;
       }
       
