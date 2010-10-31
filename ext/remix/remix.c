@@ -14,15 +14,18 @@ VALUE rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2);
     rb_raise(rb_eTypeError, "Must be a Module or Class type."); \
   } while(0)
 
+#define Validate_Type(klass) \
+  do { \
+  if (TYPE(klass) != T_OBJECT && TYPE(klass) != T_CLASS && TYPE(klass) != T_MODULE && TYPE(klass) != T_ICLASS && \
+      TYPE(klass) != T_FALSE)                                           \
+    rb_raise(rb_eTypeError, "Must be a T_MODULE, T_CLASS, T_ICLASS, T_OBJECT, or T_FALSE type."); \
+  } while(0)
+
 /* a modified version of include_class_new from class.c */
 static VALUE
 j_class_new(VALUE module, VALUE sup)
 {
   VALUE klass = create_class(T_ICLASS, rb_cClass);
-
-  if (TYPE(module) == T_ICLASS) {
-    //    klass = module;
-  }
 
   if (!RCLASS_IV_TBL(module)) {
     RCLASS_IV_TBL(module) = (struct st_table *)st_init_numtable();
@@ -106,8 +109,11 @@ get_source_module(VALUE mod)
   case T_MODULE:
     return mod;
     break;
+  case T_OBJECT:
+    return rb_singleton_class(mod);
+    break;
   default:
-    rb_raise(rb_eRuntimeError, "get_source_module: mod is not a class or iclass!");
+    Validate_Type(mod);
   }
   
   /* never reached */
@@ -117,9 +123,8 @@ get_source_module(VALUE mod)
 static VALUE
 retrieve_before_mod(VALUE m, VALUE before)
 {
-  if (!RTEST(rb_obj_is_kind_of(before, rb_cModule)) && TYPE(before) != T_FALSE)
-    rb_raise(rb_eTypeError, "Must be a Module or Class type.");
-
+  Validate_Type(before);
+  
   VALUE k = get_source_module(RCLASS_SUPER(m));
   while(k != before && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
@@ -134,9 +139,8 @@ retrieve_before_mod(VALUE m, VALUE before)
 static VALUE
 retrieve_mod(VALUE m, VALUE after)
 {
-  if (!RTEST(rb_obj_is_kind_of(after, rb_cModule)) && TYPE(after) != T_FALSE)
-    rb_raise(rb_eTypeError, "Must be a Module or Class type.");
-
+  Validate_Type(after);
+  
   VALUE k = get_source_module(m);
   while(k != after && m != 0 && m != rb_cObject) {
     m = RCLASS_SUPER(m);
@@ -277,7 +281,7 @@ rb_classmod_include_p(VALUE mod, VALUE mod2)
 {
   VALUE p;
 
-  Enforce_Classmod(mod2);
+  Enforce_Classmod(mod);
   
   for (p = RCLASS_SUPER(mod); p; p = RCLASS_SUPER(p)) {
     if (BUILTIN_TYPE(p) == T_ICLASS) {
@@ -299,6 +303,9 @@ rb_uninclude(int argc, VALUE * argv, VALUE self)
 
   VALUE mod1, recurse = Qfalse;
   rb_scan_args(argc, argv, "11", &mod1, &recurse);
+
+  if (TYPE(mod1) == T_OBJECT)
+    mod1 = rb_singleton_class(mod1);
 
   if (!RTEST(rb_classmod_include_p(self, mod1)))
     rb_raise(rb_eArgError, "Module not found");

@@ -1,10 +1,14 @@
+direc = File.dirname(__FILE__)
 require 'rubygems'
-require '../lib/remix'
+require "#{direc}/../lib/remix"
 require 'bacon'
 
 class Module
   public :include, :remove_const
 end
+
+puts "testing Remix version #{Remix::VERSION}..." 
+puts "Ruby version: #{RUBY_VERSION}"
 
 describe 'Test basic remix functionality' do
   before do

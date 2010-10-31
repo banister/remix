@@ -1,16 +1,15 @@
-$LOAD_PATH.unshift File.join(File.expand_path(__FILE__), '..')
+dlext = Config::CONFIG['DLEXT']
+direc = File.dirname(__FILE__)
 
 require 'rake/clean'
 require 'rake/gempackagetask'
+require "#{direc}/lib/remix/version"
 
-require 'lib/remix/version'
 
-$dlext = Config::CONFIG['DLEXT']
+CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o", "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "ext/**/*.def", "ext/**/*.pdb")
+CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
 
-CLEAN.include("ext/**/*.#{$dlext}", "ext/**/*.log", "ext/**/*.o", "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "ext/**/*.def", "ext/**/*.pdb")
-CLOBBER.include("**/*.#{$dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
-
-specification = Gem::Specification.new do |s|
+def apply_spec_defaults(s)
   s.name = "remix"
   s.summary = "Ruby modules re-mixed and remastered"
   s.version = Remix::VERSION
@@ -19,19 +18,45 @@ specification = Gem::Specification.new do |s|
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  #s.platform = Gem::Platform::RUBY
-  s.platform = 'i386-mingw32'
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
-
-  #s.extensions = ["ext/remix/extconf.rb"]
-  s.files =  
-    ["lib/1.9/remix.so", "lib/1.8/remix.so"] +
-    FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "test/*.rb",
-             "CHANGELOG", "README.markdown", "Rakefile"].to_a
+  s.files = FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",
+                     "test/*.rb", "CHANGELOG", "README.markdown", "Rakefile"].to_a
 end
 
-Rake::GemPackageTask.new(specification) do |package|
-  package.need_zip = false
-  package.need_tar = false
+task :test do
+  sh "bacon -k #{direc}/test/test.rb"
 end
+
+[:mingw32, :mswin32].each do |v|
+  task v do
+    spec = Gem::Specification.new do |s|
+      apply_spec_defaults(s)        
+      s.platform = "i386-#{v}"
+      s.files += FileList["lib/**/*.#{dlext}"].to_a
+    end
+
+    Rake::GemPackageTask.new(spec) do |pkg|
+      pkg.need_zip = false
+      pkg.need_tar = false
+    end
+
+    Rake::Task[:gem].invoke
+  end
+end
+
+task :ruby do
+  spec = Gem::Specification.new do |s|
+    apply_spec_defaults(s)        
+    s.platform = Gem::Platform::RUBY
+    s.extensions = ["ext/remix/extconf.rb"]
+  end
+  
+  Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_zip = false
+    pkg.need_tar = false
+  end
+
+  Rake::Task[:gem].invoke
+end
+
