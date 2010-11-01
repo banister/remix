@@ -79,7 +79,7 @@ Remix is one of a series of experimental libraries that mess with
 the internals of Ruby to bring new and interesting functionality to
 the language, see also:
 
-* [Real Include](http://github.com/banister/real_include) - Brings in
+* [Include Complete](http://github.com/banister/include_complete) - Brings in
   module singleton classes during an include. No more ugly ClassMethods and included() hook hacks.
 * [Object2module](http://github.com/banister/object2module) - Convert Classes and Objects to Modules so they can be extended/included
 * [Prepend](http://github.com/banister/prepend) - Prepends modules in front of a class; so method lookup starts with the module
