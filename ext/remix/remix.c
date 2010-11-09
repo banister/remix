@@ -121,6 +121,52 @@ get_source_module(VALUE mod)
 }
 
 static VALUE
+retrieve_index_of_mod(VALUE self, VALUE mod)
+{
+  VALUE m = self;
+
+  int i = 0;
+  while(m != mod && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject) {
+    m = RCLASS_SUPER(m);
+
+    if (m == mod)
+      return INT2FIX(i);
+    
+    i++;
+  }
+
+  rb_raise(rb_eRuntimeError, "The module was not found at the given index.");
+
+  /* never reached */
+  return Qnil;
+}
+
+static VALUE
+retrieve_mod_at_index(VALUE self, int index)
+{
+  VALUE m = self;
+
+  int i = 1;
+  while(i++ < index && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject)
+    m = RCLASS_SUPER(m);
+
+  return m;
+}
+
+static VALUE
+retrieve_mod_before_index(VALUE self, int index)
+{
+  VALUE m = self;
+  index--;
+
+  int i = 1;
+  while(i++ < index && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject)
+    m = RCLASS_SUPER(m);
+
+  return m;
+}
+
+static VALUE
 retrieve_before_mod(VALUE m, VALUE before)
 {
   Validate_Type(before);
@@ -230,11 +276,9 @@ rb_include_at(VALUE self, VALUE rb_index, VALUE mod)
   int index = FIX2INT(rb_index);
   VALUE m = self;
 
-  int i = 1;
-  while(i++ < index && RCLASS_SUPER(m) != 0 && RCLASS_SUPER(m) != rb_cObject)
-    m = RCLASS_SUPER(m);
-
+  m = retrieve_mod_at_index(self, index);
   rb_include_module(m, mod);
+
   return self;
 }
 
@@ -295,7 +339,6 @@ rb_classmod_include_p(VALUE mod, VALUE mod2)
   return Qfalse;
 }
 
-      
 VALUE
 rb_uninclude(int argc, VALUE * argv, VALUE self)
 {
@@ -361,4 +404,3 @@ Init_remix()
   rb_define_alias(mModuleExtensions, "remove_module", "uninclude");
   rb_define_method(mModuleExtensions, "replace_module", rb_replace_module, 2);
 }
-

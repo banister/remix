@@ -133,6 +133,16 @@ describe 'Test basic remix functionality' do
         M.include_at(1, C)
         M.ancestors[1].should == C
       end
+
+      it 'should include module at index 1 if index is < 1' do
+        M.include_at(-1, C)
+        M.ancestors[1].should == C
+      end
+
+      it 'should include module at top index if index is > highest index' do
+        M.include_at(100, C)
+        M.ancestors.last.should == C
+      end
     end
 
     describe 'remove_module' do
