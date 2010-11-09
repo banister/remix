@@ -121,7 +121,7 @@ get_source_module(VALUE mod)
 }
 
 static VALUE
-retrieve_before_mod(VALUE m, VALUE before)
+retrieve_imod_before_mod(VALUE m, VALUE before)
 {
   Validate_Type(before);
   
@@ -137,7 +137,7 @@ retrieve_before_mod(VALUE m, VALUE before)
 }
 
 static VALUE
-retrieve_mod(VALUE m, VALUE after)
+retrieve_imod_for_mod(VALUE m, VALUE after)
 {
   Validate_Type(after);
   
@@ -161,7 +161,7 @@ rb_module_move_up(VALUE self, VALUE mod)
   if (self == mod)
     return self;
 
-  VALUE included_mod = retrieve_mod(self, mod);
+  VALUE included_mod = retrieve_imod_for_mod(self, mod);
   if (RCLASS_SUPER(included_mod) == rb_cObject || RCLASS_SUPER(included_mod) == 0)
     return self;
   
@@ -178,7 +178,7 @@ rb_module_move_down(VALUE self, VALUE mod)
   if (self == mod)
     return self;
 
-  VALUE before_included_mod = retrieve_before_mod(self, mod);
+  VALUE before_included_mod = retrieve_imod_before_mod(self, mod);
   if (before_included_mod == self)
     return self;
    
@@ -193,9 +193,9 @@ rb_include_at_top(VALUE self, VALUE mod)
   rb_prepare_for_remix(self);
 
   if (TYPE(self) == T_MODULE)
-    rb_include_module(retrieve_before_mod(self, Qfalse), mod);
+    rb_include_module(retrieve_imod_before_mod(self, Qfalse), mod);
   else
-    rb_include_module(retrieve_before_mod(self, rb_cObject), mod);
+    rb_include_module(retrieve_imod_before_mod(self, rb_cObject), mod);
 
   return self;
 }
@@ -204,7 +204,7 @@ VALUE
 rb_include_after(VALUE self, VALUE after, VALUE mod)
 {
   rb_prepare_for_remix(self);
-  rb_include_module(retrieve_mod(self, after), mod);
+  rb_include_module(retrieve_imod_for_mod(self, after), mod);
   return self;
 }
 
@@ -216,7 +216,7 @@ rb_include_before(VALUE self, VALUE before, VALUE mod)
   if (before == self)
     rb_raise(rb_eRuntimeError, "Prepend not supported yet!");
   
-  rb_include_module(retrieve_before_mod(self, before), mod);
+  rb_include_module(retrieve_imod_before_mod(self, before), mod);
   return self;
 }
 
@@ -250,10 +250,10 @@ rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
 
   if (mod1 == rb_cObject || mod2 == rb_cObject) rb_raise(rb_eRuntimeError, "can't swap Object");
 
-  included_mod1 = retrieve_mod(self, mod1);
-  included_mod2 = retrieve_mod(self, mod2);
-  before_mod1 = retrieve_before_mod(self, mod1);
-  before_mod2 = retrieve_before_mod(self, mod2);
+  included_mod1 = retrieve_imod_for_mod(self, mod1);
+  included_mod2 = retrieve_imod_for_mod(self, mod2);
+  before_mod1 = retrieve_imod_before_mod(self, mod1);
+  before_mod2 = retrieve_imod_before_mod(self, mod2);
 
   SWAP(RCLASS_SUPER(before_mod1), RCLASS_SUPER(before_mod2));
   SWAP(RCLASS_SUPER(included_mod1), RCLASS_SUPER(included_mod2));
@@ -310,8 +310,8 @@ rb_uninclude(int argc, VALUE * argv, VALUE self)
   if (!RTEST(rb_classmod_include_p(self, mod1)))
     rb_raise(rb_eArgError, "Module not found");
 
-  VALUE before = retrieve_before_mod(self, mod1);
-  VALUE included_mod = retrieve_mod(self, mod1);
+  VALUE before = retrieve_imod_before_mod(self, mod1);
+  VALUE included_mod = retrieve_imod_for_mod(self, mod1);
   
   if (mod1 == rb_cObject) rb_raise(rb_eRuntimeError, "can't delete Object");
 
@@ -333,7 +333,7 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
   if (rb_classmod_include_p(self, mod2))
     return rb_swap_modules(self, mod1, mod2);
   
-  VALUE before = retrieve_before_mod(self, mod1);
+  VALUE before = retrieve_imod_before_mod(self, mod1);
   rb_uninclude(1, &mod1, self);
   rb_include_module(before, mod2);
   return self;
