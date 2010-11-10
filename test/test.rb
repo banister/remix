@@ -12,9 +12,9 @@ puts "Ruby version: #{RUBY_VERSION}"
 
 describe 'Test basic remix functionality' do
   before do
-    A = Module.new
+    A = Module.new { def hello; :hello; end }
     B = Module.new
-    C = Module.new
+    C = Module.new 
     J = Module.new
     
     M = Module.new
@@ -43,6 +43,26 @@ describe 'Test basic remix functionality' do
         M.extend_above B, J
         M.singleton_class.ancestors
         M.singleton_class.ancestors[0..2].should == [A, B, J]
+      end
+    end
+
+    describe 'temp_extend' do
+      it 'should temporarily extend the module for the duration of a block' do
+        lambda { B.hello }.should.raise NoMethodError
+        B.temp_extend(A) do
+          B.hello.should == :hello
+        end
+        lambda { B.hello }.should.raise NoMethodError
+      end
+    end
+
+    describe 'temp_extend_safe' do
+      it 'should temporarily extend the module for the duration of a block in a threadsafe manner' do
+        lambda { B.hello }.should.raise NoMethodError
+        B.temp_extend_safe(A) do
+          B.hello.should == :hello
+        end
+        lambda { B.hello }.should.raise NoMethodError
       end
     end
 
@@ -90,6 +110,26 @@ describe 'Test basic remix functionality' do
       end
     end
 
+    describe 'temp_include' do
+      it 'should temporarily include the module for the duration of a block' do
+        lambda { "john".hello }.should.raise NoMethodError
+        String.temp_include(A) do
+          "john".hello.should == :hello
+        end
+        lambda { "john".hello }.should.raise NoMethodError
+      end
+    end
+
+    describe 'temp_include_safe' do
+      it 'should temporarily include the module for the duration of a block in a threadsafe manner' do
+        lambda { "john".hello }.should.raise NoMethodError
+        String.temp_include_safe(A) do
+          "john".hello.should == :hello
+        end
+        lambda { "john".hello }.should.raise NoMethodError
+      end
+    end
+    
     describe 'include_before' do
       it 'should insert module into correct position' do
         M.include_before B, C
