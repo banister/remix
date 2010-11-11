@@ -149,10 +149,9 @@ module Remix::ModuleExtensions
       end
     end
     
-    if !@__exclusive__
-      @__exclusive__ = true
-      Thread.exclusive(&safe_code)
-      remove_instance_variable(:@__exclusive__)
+    if !Thread.current[:__exclusive__]
+      Thread.exclusive { Thread.current[:__exclusive__] = true; safe_code.call }
+      Thread.current[:__exclusive__] = false
     else
       safe_code.call
     end
