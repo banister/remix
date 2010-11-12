@@ -249,6 +249,7 @@ rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2)
   VALUE included_mod1, included_mod2;
 
   if (mod1 == rb_cObject || mod2 == rb_cObject) rb_raise(rb_eRuntimeError, "can't swap Object");
+  if (mod1 == mod2) return self;
 
   included_mod1 = retrieve_imod_for_mod(self, mod1);
   included_mod2 = retrieve_imod_for_mod(self, mod2);
@@ -332,6 +333,8 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
 
   if (rb_classmod_include_p(self, mod2))
     return rb_swap_modules(self, mod1, mod2);
+
+  if (mod1 == mod2) return;
   
   VALUE before = retrieve_imod_before_mod(self, mod1);
   rb_uninclude(1, &mod1, self);
