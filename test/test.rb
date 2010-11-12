@@ -3,12 +3,6 @@ require 'rubygems'
 require "#{direc}/../lib/remix"
 require 'bacon'
 
-class Array
-  def sample(n = 1)
-    shuffle.take(n)
-  end if !method_defined?(:sample)
-end
-
 class Module
   public :include, :remove_const
 end

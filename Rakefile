@@ -28,7 +28,6 @@ task :test do
   sh "bacon -k #{direc}/test/test.rb"
 end
 
-
 [:mingw32, :mswin32].each do |v|
   namespace v do
     spec = Gem::Specification.new do |s|
@@ -56,4 +55,21 @@ namespace :ruby do
     pkg.need_tar = false
   end
 end
+
+desc "build all platform gems at once"
+task :gems => [:rmgems, "mingw32:gem", "mswin32:gem", "ruby:gem"]
+
+desc "remove all platform gems"
+task :rmgems => ["ruby:clobber_package"]
+
+desc "build and push latest gems"
+task :pushgems => :gems do
+  chdir("#{direc}/pkg") do
+    Dir["*.gem"].each do |gemfile|
+      sh "gem push #{gemfile}"
+    end
+  end
+end
+
+  
 
