@@ -182,6 +182,14 @@ describe 'Test basic remix functionality' do
           M.ancestors[1..2].should == [B, A]
         end
 
+        it 'should do a no-op when source/dest modules are the same' do
+          M.ancestors[1..2].should == [A, B]
+          M.swap_modules A, A
+          M.ancestors[1..2].should == [A, B]
+          M.swap_modules B, B
+          M.ancestors[1..2].should == [A, B]
+        end
+
         it 'should handle huge ancestor chains without crashing or returning the wrong result' do
           size = 100
           m = Module.new
@@ -243,11 +251,17 @@ describe 'Test basic remix functionality' do
           M.replace_module B, C
           M.ancestors[1..2].should == [A, C]
         end
+        
 
         it 'should replace a class with a module' do
           C2.ancestors[0..2].should == [C2, A, C1]
           C2.replace_module C1, B
           C2.ancestors[0..2].should == [C2, A, B]
+        end
+
+        it 'should raise when replace_module target is the root module of the chain' do
+          M.ancestors[0..2].should == [M, A, B]
+          lambda { M.replace_module M, J }.should.raise RuntimeError
         end
       end
     end

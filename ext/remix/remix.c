@@ -331,6 +331,8 @@ rb_replace_module(VALUE self, VALUE mod1, VALUE mod2)
 {
   rb_prepare_for_remix(self);
 
+  if (mod1 == self) rb_raise(rb_eRuntimeError, "can't replace root module.");
+  
   if (rb_classmod_include_p(self, mod2))
     return rb_swap_modules(self, mod1, mod2);
 

@@ -56,6 +56,23 @@ namespace :ruby do
   end
 end
 
+task :compile do
+  build_for = proc do |pik_ver, ver|
+    sh %{ \
+          pik #{pik_ver} && \
+          ruby extconf.rb && \
+          make clean && \
+          make && \
+          cp *.so #{direc}/lib/#{ver} \
+        }
+  end
+  
+  chdir("#{direc}/ext/remix") do
+    build_for.call("187", "1.8")
+    build_for.call("default", "1.9")
+  end
+end
+
 desc "build all platform gems at once"
 task :gems => [:rmgems, "mingw32:gem", "mswin32:gem", "ruby:gem"]
 
@@ -71,5 +88,5 @@ task :pushgems => :gems do
   end
 end
 
-  
+
 
