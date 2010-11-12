@@ -59,6 +59,7 @@ end
 task :compile do
   build_for = proc do |pik_ver, ver|
     sh %{ \
+          c:\\devkit\\devkitvars.bat && \
           pik #{pik_ver} && \
           ruby extconf.rb && \
           make clean && \
@@ -69,7 +70,7 @@ task :compile do
   
   chdir("#{direc}/ext/remix") do
     build_for.call("187", "1.8")
-    build_for.call("default", "1.9")
+    build_for.call("192", "1.9")
   end
 end
 
