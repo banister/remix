@@ -53,7 +53,7 @@ module Remix
     #   
     #   o = Object.new
     #   o.temp_extend(M) do
-    #     puts hello #=> "hello"
+    #     puts o.hello #=> "hello"
     #   end
     #   
     #   o.hello #=> NoMethodError
