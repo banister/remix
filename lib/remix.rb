@@ -71,6 +71,8 @@ module Remix
     # Temporarily extends a module for the duration of a block in a
     # thread-safe manner.
     # Module will be unextended at end of block.
+    # **DO NOT** wait on other threads in this block as it will result
+    # in deadlock. `Thread.exclusive` is used.
     # @param [Module] mod Module to be temporarily extended
     def temp_extend_safe(mod, options={}, &block)
       safe_code = proc do
@@ -187,6 +189,8 @@ module Remix
     # Temporarily includes a module for the duration of a block in a
     # thread-safe manner.
     # Module will be unincluded at end of block.
+    # *DO NOT* wait on other threads in this block as it will result
+    # in deadlock. `Thread.exclusive` is used.
     # @param [Module] mod Module to be temporarily included
     def temp_include_safe(mod, options={}, &block)
       safe_code = proc do
