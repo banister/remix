@@ -16,18 +16,19 @@ remove modules, replace modules, move modules around and otherwise
 * Read the [documentation](http://rdoc.info/github/banister/remix/master/file/README.markdown)
 * See the [source code](http://github.com/banister/remix)
 
-example: include_at_top():
---------------------------
+example: temp_include():
+------------------------
 
-Using `include_at_top` we can include a module at the top of a chain
-rather than at the bottom (the default).
+Using `temp_include` we can temporaliy mix in a module for the
+duration of a block:
 
-    M.ancestors #=> [M, A, B, C]
+    module M def hello() :hello end end
     
-    M.include_at_top J
+    String.temp_include(M) do
+      puts "test".hello #=> "hello"
+    end
     
-    # Modified ancestor chain
-    M.ancestors #=> [M, A, B, C, J]
+    "test".hello #=> NoMethodError
     
 example: unextend()
 --------------------
@@ -90,6 +91,7 @@ Full list of functions
 
 **include-based functions:**
 
+* temp_include(mod)
 * include_at(index, mod)
 * include_at_top(mod)
 * include_before(before_mod, mod)
@@ -102,6 +104,7 @@ Full list of functions
 
 **extend-based functions:**
 
+* temp_extend(mod)
 * extend_at(index, mod)
 * extend_at_top(mod)
 * extend_before(before_mod, mod)

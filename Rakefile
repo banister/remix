@@ -5,9 +5,9 @@ require 'rake/clean'
 require 'rake/gempackagetask'
 require "#{direc}/lib/remix/version"
 
-
-CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o", "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "ext/**/*.def", "ext/**/*.pdb")
 CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
+CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o", "ext/**/*~",
+              "ext/**/*#*", "ext/**/*.obj", "ext/**/*.def", "ext/**/*.pdb")
 
 def apply_spec_defaults(s)
   s.name = "remix"
@@ -20,10 +20,11 @@ def apply_spec_defaults(s)
   s.require_path = 'lib'
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
-  s.files = FileList["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",
-                     "test/*.rb", "CHANGELOG", "README.markdown", "Rakefile"].to_a
+  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",
+                     "test/*.rb", "CHANGELOG", "README.markdown", "Rakefile"]
 end
 
+desc "run tests"
 task :test do
   sh "bacon -k #{direc}/test/test.rb"
 end
@@ -56,6 +57,7 @@ namespace :ruby do
   end
 end
 
+desc "build the 1.8 and 1.9 binaries from source and copy to lib/"
 task :compile do
   build_for = proc do |pik_ver, ver|
     sh %{ \
