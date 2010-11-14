@@ -144,13 +144,13 @@ module Remix
     end
 
     # Like `replace_module()` but for the singleton class
-    # @see Remix::ModuleExtensions#replace_module_down
+    # @see Remix::ModuleExtensions#replace_module
     def replace_extended_module(mod1, mod2)
       singleton_class.replace_module(mod1, mod2)
     end
 
     # Like `ready_remix()` on `Module` but for the singleton class
-    # @see Remix::ModuleExtensions#remix
+    # @see Remix::ModuleExtensions#ready_remix
     def ready_remix()
       singleton_class.ready_remix
     end
