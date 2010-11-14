@@ -8,12 +8,7 @@ module Remix
     # @param [Module] mod The module to include
     # @return [Module] The receiver
     # @example
-    #   module M end
-    #   module N end
-    #   module O end
-    #   module P
-    #     include M, N
-    #   end
+    #   P.ancestors #=> [P, M, N]
     #   P.include_at 2, O
     #   P.ancestors #=> [P, M, O, N]
     def include_at(index, mod) end

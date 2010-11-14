@@ -44,6 +44,19 @@ module Remix
     # Temporarily extends a module for the duration of a block.
     # Module will be unextended at end of block.
     # @param [Module] mod Module to be temporarily extended
+    # @example
+    #   module M
+    #     def hello
+    #       puts "hello"
+    #     end
+    #   end
+    #
+    #  o = Object.new
+    #  o.temp_extend(M) do
+    #    hello #=> "hello"
+    #  end
+    #
+    #  o.hello #=> NoMethodError
     def temp_extend(mod, options={}, &block)
       Remix.wrap_with_hooks(options[:before], options[:after]) do
         begin
@@ -59,6 +72,8 @@ module Remix
     # thread-safe manner.
     # Module will be unextended at end of block.
     # @param [Module] mod Module to be temporarily extended
+    # @ example
+    #   # see example for temp_extend
     def temp_extend_safe(mod, options={}, &block)
       safe_code = proc do
         Remix.wrap_with_hooks(options[:before], options[:after]) do
@@ -142,6 +157,18 @@ module Remix
     # Temporarily includes a module for the duration of a block.
     # Module will be unincluded at end of block.
     # @param [Module] mod Module to be temporarily included
+    # @example
+    #   module M
+    #     def hello
+    #       puts "hello"
+    #     end
+    #   end
+    #
+    #   String.temp_include(M) do
+    #     "friendo".hello #=> "hello"
+    #  end
+    #
+    #  "friendo".hello #=> NoMethodError
     def temp_include(mod, options={}, &block)
       Remix.wrap_with_hooks(options[:before], options[:after]) do
         begin
@@ -157,6 +184,8 @@ module Remix
     # thread-safe manner.
     # Module will be unincluded at end of block.
     # @param [Module] mod Module to be temporarily included
+    # @example
+    #   # see example for temp_include
     def temp_include_safe(mod, options={}, &block)
       safe_code = proc do
         Remix.wrap_with_hooks(options[:before], options[:after]) do
