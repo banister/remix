@@ -105,5 +105,11 @@ module Remix
     #   M.replace_module B, J
     #   M.ancestors #=> [M, A, J]
     def replace_module(mod1, mod2) end
+
+    # Prepares the receiver's ancestor chain for remixing. This method
+    # is called automatically by all remixing methods and should
+    # never need to be invoked by the user.
+    # @return [Object] The receiver
+    def ready_remix() end
   end
 end

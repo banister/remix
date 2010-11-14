@@ -47,13 +47,15 @@ module Remix
     # @example
     #   module M
     #     def hello
-    #       puts "hello"
+    #       :hello
     #     end
     #   end
+    #   
     #   o = Object.new
     #   o.temp_extend(M) do
-    #     hello #=> "hello"
+    #     puts hello #=> "hello"
     #   end
+    #   
     #   o.hello #=> NoMethodError
     def temp_extend(mod, options={}, &block)
       Remix.wrap_with_hooks(options[:before], options[:after]) do
@@ -146,6 +148,12 @@ module Remix
     def replace_extended_module(mod1, mod2)
       singleton_class.replace_module(mod1, mod2)
     end
+
+    # Like `ready_remix()` on `Module` but for the singleton class
+    # @see Remix::ModuleExtensions#remix
+    def ready_remix()
+      singleton_class.ready_remix
+    end
   end
 
   module Remix::ModuleExtensions
@@ -156,12 +164,14 @@ module Remix
     # @example
     #   module M
     #     def hello
-    #       puts "hello"
+    #       :hello
     #     end
     #   end
+    #   
     #   String.temp_include(M) do
-    #     "friendo".hello #=> "hello"
+    #     puts "friendo".hello #=> "hello"
     #   end
+    #   
     #   "friendo".hello #=> NoMethodError
     def temp_include(mod, options={}, &block)
       Remix.wrap_with_hooks(options[:before], options[:after]) do
