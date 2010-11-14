@@ -20,6 +20,7 @@ rescue LoadError => e
 end
 
 module Kernel
+
   # Define a `singleton_class` method for the 1.8 kids
   # @return [Class] The singleton class of the receiver
   def singleton_class
@@ -32,6 +33,7 @@ module Remix
   # Wraps a block of code so that `before` and `after` lambdas are invoked
   # prior to and after the block.
   # @return [Object] The return value of the block
+  # @yield the block to wrap
   def self.wrap_with_hooks(before, after, &block)
     before.call if before
     yield
@@ -44,6 +46,8 @@ module Remix
     # Temporarily extends a module for the duration of a block.
     # Module will be unextended at end of block.
     # @param [Module] mod Module to be temporarily extended
+    # @return [Object] The value of the block
+    # @yield The block that will acquire the functionality.
     # @example
     #   module M
     #     def hello
@@ -74,6 +78,8 @@ module Remix
     # **DO NOT** wait on other threads in this block as it will result
     # in deadlock. `Thread.exclusive` is used.
     # @param [Module] mod Module to be temporarily extended
+    # @return [Object] The value of the block
+    # @yield The block that will acquire the functionality.
     def temp_extend_safe(mod, options={}, &block)
       safe_code = proc do
         Remix.wrap_with_hooks(options[:before], options[:after]) do
@@ -87,74 +93,101 @@ module Remix
       end
       
       if !Thread.current[:__exclusive__]
-        Thread.exclusive { Thread.current[:__exclusive__] = true; safe_code.call }
-        Thread.current[:__exclusive__] = false
+        value = nil
+        
+        Thread.exclusive do
+          Thread.current[:__exclusive__] = true
+          value = safe_code.call
+          Thread.current[:__exclusive__] = false
+        end
+
+        value
       else
         safe_code.call
       end
     end
 
     # Like `include_at()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#include_at
     def extend_at(index, mod)
       singleton_class.include_at(index, mod)
+      self
     end
 
     # Like `include_below()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#include_below
     def extend_below(mod1, mod2)
       singleton_class.include_below(mod1, mod2)
+      self
     end
     alias_method :extend_before, :extend_below
 
     # Like `include_above()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#include_above
     def extend_above(mod1, mod2)
       singleton_class.include_above(mod1, mod2)
+      self
     end
     alias_method :extend_after, :extend_above
 
     # Like `uninclude()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#uninclude
     def unextend(mod, recurse = false)
       singleton_class.uninclude(mod, recurse)
+      self
     end
     alias_method :remove_extended_module, :unextend
 
     # Like `include_at_top()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#include_at_top
     def extend_at_top(mod)
       singleton_class.include_at_top(mod)
+      self
     end
 
     # Like `swap_modules()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#swap_modules
     def swap_extended_modules(mod1, mod2)
       singleton_class.swap_modules(mod1, mod2)
+      self
     end
 
     # Like `module_move_up()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#module_move_up
     def extended_module_move_up(mod)
       singleton_class.module_move_up(mod)
+      self
     end
     
     # Like `module_move_down()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#module_move_down
     def extended_module_move_down(mod)
       singleton_class.module_move_down(mod)
+      self
     end
 
     # Like `replace_module()` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#replace_module
     def replace_extended_module(mod1, mod2)
       singleton_class.replace_module(mod1, mod2)
+      self
     end
 
     # Like `ready_remix()` on `Module` but for the singleton class
+    # @return [Object] The receiver
     # @see Remix::ModuleExtensions#ready_remix
     def ready_remix()
       singleton_class.ready_remix
+      self
     end
   end
 
@@ -163,6 +196,8 @@ module Remix
     # Temporarily includes a module for the duration of a block.
     # Module will be unincluded at end of block.
     # @param [Module] mod Module to be temporarily included
+    # @return [Object] The value of the block
+    # @yield The block that will acquire the functionality.
     # @example
     #   module M
     #     def hello
@@ -192,6 +227,8 @@ module Remix
     # *DO NOT* wait on other threads in this block as it will result
     # in deadlock. `Thread.exclusive` is used.
     # @param [Module] mod Module to be temporarily included
+    # @return [Object] The value of the block
+    # @yield The block that will acquire the functionality.
     def temp_include_safe(mod, options={}, &block)
       safe_code = proc do
         Remix.wrap_with_hooks(options[:before], options[:after]) do
@@ -205,8 +242,15 @@ module Remix
       end
       
       if !Thread.current[:__exclusive__]
-        Thread.exclusive { Thread.current[:__exclusive__] = true; safe_code.call }
-        Thread.current[:__exclusive__] = false
+        value = nil
+        
+        Thread.exclusive do
+          Thread.current[:__exclusive__] = true
+          value = safe_code.call 
+          Thread.current[:__exclusive__] = false
+        end
+        
+        value
       else
         safe_code.call
       end

@@ -1,3 +1,7 @@
+15/11/2010 version 0.4.8
+* all extend-based methods now return self
+* added documentation on blocks (@yield)
+* threadsafe temp_* methods now return value of block
 12/11/2010 version 0.4.6
 * fixed segfault in replace_module when trying to replace root module
 12/11/2010 version 0.4.5
