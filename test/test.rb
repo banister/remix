@@ -206,6 +206,13 @@ describe 'Test basic remix functionality' do
         end
       end
 
+      describe '__attached__' do
+        it 'should return the correct attached object' do
+          o = Object.new
+          o.singleton_class.__attached__.should == o
+        end
+      end
+
       describe 'module_move_up' do
         it 'should move module up the chain' do
           M.ancestors[1..2].should == [A, B]

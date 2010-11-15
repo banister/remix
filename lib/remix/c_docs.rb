@@ -1,5 +1,13 @@
 module Remix
   module ModuleExtensions
+
+    # Utility method to return object associated with a singleton class
+    # @return Object associated with singleton
+    # @example
+    #   class C; end
+    #   C.singleton_class.__attached__ #=> C
+    def __attached__() end
+      
     # Includes a module at a particular index in the ancestor
     # chain.
     #

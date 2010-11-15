@@ -1,3 +1,5 @@
+16/11/2010 version 0.4.9
+* added __attached__ method 
 15/11/2010 version 0.4.8
 * all extend-based methods now return self
 * added documentation on blocks (@yield)

@@ -21,6 +21,16 @@ VALUE rb_swap_modules(VALUE self, VALUE mod1, VALUE mod2);
     rb_raise(rb_eTypeError, "Must be a T_MODULE, T_CLASS, T_ICLASS, T_OBJECT, or T_FALSE type."); \
   } while(0)
 
+/* Tiny utility method to return an object attached to a singleton */
+static VALUE
+rb_singleton_attached(VALUE self)
+{
+  if(FL_TEST(self, FL_SINGLETON))
+    return rb_iv_get(self, "__attached__");
+  else
+    return Qnil;
+}
+
 /* a modified version of include_class_new from class.c */
 static VALUE
 j_class_new(VALUE module, VALUE sup)
@@ -365,5 +375,8 @@ Init_remix()
   rb_define_method(mModuleExtensions, "uninclude", rb_uninclude, -1);
   rb_define_alias(mModuleExtensions, "remove_module", "uninclude");
   rb_define_method(mModuleExtensions, "replace_module", rb_replace_module, 2);
+
+  rb_define_method(mModuleExtensions, "__attached__", rb_singleton_attached, 0);
+
 }
 
